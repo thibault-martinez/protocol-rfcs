@@ -97,6 +97,7 @@ UpdateLedgerState(ledger, newMilestone) {
     let trunk = the trunk of newMilestone
     let branch = the branch of newMilestone
     let seen_bundles = an empty stack
+    let post_order_seen_bundles = an empty stack
 
     seen_bundles.push(trunk)
     mark trunk as visited
@@ -105,10 +106,7 @@ UpdateLedgerState(ledger, newMilestone) {
 
     while (seen_bundles is not empty) {
         let curr_bundle = seen_bundles.pop()
-
-        if (!ledger.conflicts(curr_bundle)) {
-            ledger.apply(curr_bundle)
-        }
+        post_order_seen_bundles.push(curr_bundle)
 
         trunk = the next bundle pointed by the trunk of the last transaction in curr_bundle
         if (trunk is not visited and not confirmed by any milestone previous to newMilestone) {
@@ -121,6 +119,16 @@ UpdateLedgerState(ledger, newMilestone) {
             seen_bundles.push(branch)
             mark branch as visited
         }
+    }
+    
+    while (post_order_seen_bundles is not empty){
+    
+            let curr_bundle = post_order_seen_bundles.pop()
+    
+            if (!ledger.conflicts(curr_bundle)) {
+                ledger.apply(curr_bundle)
+            }
+
     }
 }
 ```
