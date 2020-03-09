@@ -82,46 +82,44 @@ ignored.
 
 ## Pseudo-code
 
-The following algorithm describes the process of updating the ledger state, updating the ledger state can be done
-whenever there are new known confirmed transactions, an arrival of a new milestone should trigger the update of the
-ledger state since the new milestone confirms many new transactions.
+The following algorithm describes the process of updating the ledger state which is usually triggered by the arrival of
+a new milestone confirming many new bundles.
 
-Though the tangle is a graph made of transactions, we would like for the sake of this algorithm to consider it as a
-graph of bundles where bundle is merely a collection of transactions sharing the same `bundle_hash` field and pointing
-to each other via `trunk`.
+Even though the tangle is a graph made of transactions, for the sake of this pseudo-code it is considered as a graph of
+bundles. For this reason, when we talk about the `trunk` or the `branch` of a bundle, we are actually referring to the
+`trunk` and `branch` of the last transaction of the bundle.
 
 ```
-UpdateLedgerState(newMilestone) {
- 
-    //newMilestone is a bundle containing the milestone transactions
-    let ledger be our global ledger state object
-    let bundle_trunk be the first bundle pointed by the trunk of the last transaction in newMilestone
-    let bundle_branch be the first bundle pointed by the branch of any transaction in newMilestone
-    let seen_bundles be stack
+// ledger is the global ledger state
+// newMilestone is a bundle containing the new milestone transactions
+UpdateLedgerState(ledger, newMilestone) {
 
-    seen_bundles.push(bundle_trunk)
-    mark bundle_trunk as visited
-    seen_bundles.push(bundle_branch)
-    mark bundle_branch as visited
+    let trunk = the trunk of newMilestone
+    let branch = the branch of newMilestone
+    let seen_bundles = an empty stack
+
+    seen_bundles.push(trunk)
+    mark trunk as visited
+    seen_bundles.push(branch)
+    mark branch as visited
 
     while (seen_bundles is not empty) {
-        curr_bundle = seen_bundles.top()
-        seen_bundles.pop()
+        let curr_bundle = seen_bundles.pop()
 
         if (!ledger.conflicts(curr_bundle)) {
             ledger.apply(curr_bundle)
         }
 
-        let bundle_trunk be the next bundle pointed by the trunk of the last transaction in curr_bundle
-        if (bundle_trunk is not visited and not confirmed by any milestone previous to newMilestone) {
-            seen_bundles.push(bundle_trunk)
-            mark bundle_trunk as visited
+        trunk = the next bundle pointed by the trunk of the last transaction in curr_bundle
+        if (trunk is not visited and not confirmed by any milestone previous to newMilestone) {
+            seen_bundles.push(trunk)
+            mark trunk as visited
         }
 
-        let bundle_branch be the next bundle pointed by the branch of any transaction in curr_bundle
-        if (bundle_branch is not visited and not confirmed by any milestone previous to newMilestone) {
-            seen_bundles.push(bundle_branch)
-            mark bundle_branch as visited
+        branch = the next bundle pointed by the branch of any transaction in curr_bundle
+        if (branch is not visited and not confirmed by any milestone previous to newMilestone) {
+            seen_bundles.push(branch)
+            mark branch as visited
         }
     }
 }
