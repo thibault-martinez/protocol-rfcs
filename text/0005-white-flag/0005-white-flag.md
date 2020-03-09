@@ -94,29 +94,27 @@ bundles. For this reason, when we talk about the `trunk` or the `branch` of a bu
 // newMilestone is a bundle containing the new milestone transactions
 UpdateLedgerState(ledger, newMilestone) {
 
-    let trunk = the trunk of newMilestone
-    let branch = the branch of newMilestone
     let seen_bundles = an empty stack
     let post_order_seen_bundles = an empty stack
 
-    seen_bundles.push(trunk)
-    mark trunk as visited
-    seen_bundles.push(branch)
-    mark branch as visited
+    seen_bundles.push(newMilestone)
+    post_order_seen_bundles.push(newMilestone)
+    mark newMilestone as visited
 
     while (seen_bundles is not empty) {
         let curr_bundle = seen_bundles.pop()
-        post_order_seen_bundles.push(curr_bundle)
 
         trunk = the next bundle pointed by the trunk of the last transaction in curr_bundle
         if (trunk is not visited and not confirmed by any milestone previous to newMilestone) {
             seen_bundles.push(trunk)
+            post_order_seen_bundles.push(trunk)
             mark trunk as visited
         }
 
         branch = the next bundle pointed by the branch of any transaction in curr_bundle
         if (branch is not visited and not confirmed by any milestone previous to newMilestone) {
             seen_bundles.push(branch)
+            post_order_seen_bundles.push(branch)
             mark branch as visited
         }
     }
