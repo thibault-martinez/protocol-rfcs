@@ -97,6 +97,7 @@ UpdateLedgerState(ledger, newMilestone) {
     let trunk = the trunk of newMilestone
     let branch = the branch of newMilestone
     let seen_bundles = an empty stack
+    let post_order_seen_bundles = an empty stack
 
     seen_bundles.push(trunk)
     mark trunk as visited
@@ -105,10 +106,7 @@ UpdateLedgerState(ledger, newMilestone) {
 
     while (seen_bundles is not empty) {
         let curr_bundle = seen_bundles.pop()
-
-        if (!ledger.conflicts(curr_bundle)) {
-            ledger.apply(curr_bundle)
-        }
+        post_order_seen_bundles.push(curr_bundle)
 
         trunk = the next bundle pointed by the trunk of the last transaction in curr_bundle
         if (trunk is not visited and not confirmed by any milestone previous to newMilestone) {
@@ -121,6 +119,16 @@ UpdateLedgerState(ledger, newMilestone) {
             seen_bundles.push(branch)
             mark branch as visited
         }
+    }
+    
+    while (post_order_seen_bundles is not empty){
+    
+            let curr_bundle = post_order_seen_bundles.pop()
+    
+            if (!ledger.conflicts(curr_bundle)) {
+                ledger.apply(curr_bundle)
+            }
+
     }
 }
 ```
@@ -138,7 +146,12 @@ malicious data will be saved as part of the consensus set of the Tangle.
 
 # Rationale and alternatives
 
-<!-- TODO -->
+A transaction that chooses tips to approve, first performs tip selection to get these tips,
+then in order for that transaction to be valid it must not approve two different tips which 
+conflicts each other, asserting that two tips are not conflicting requires validating the ledger state
+upon applying each of the transactions in the cone spanned by the selected tips, which is expensive
+since tip selection is done also by the coordinator it affects the CTPS, discarding this check
+by allowing conflicting bundles to coexist should result in CTPS increase
 
 # Unresolved questions
 
