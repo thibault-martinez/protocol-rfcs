@@ -90,7 +90,7 @@ bundles. For this reason, when we talk about the `trunk` or the `branch` of a bu
 `trunk` and `branch` of the last transaction of the bundle.
 
 There are multiple topological orders for each DAG, and in order to avoid conflicting
-ledger states it is requisite that all noes will apply bundles in the exact same order
+ledger states it is requisite that all nodes will apply bundles in the exact same order
 
 To avoid ambiguities we define the order which will be followed,
 upon the arrival of a new milestone, we will span the cone of transactions
