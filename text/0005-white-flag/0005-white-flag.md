@@ -47,7 +47,7 @@ conflict.
 
 ## Deterministically ordering the Tangle
 
-When a new milestone is broadcasted to the network, nodes will need to order the set of bundles it confirms that are
+When a new milestone is broadcasted to the network, nodes will need to order the set of bundles it confirms that
 was not previously confirmed by any other milestone.
 
 A subset of the Tangle can be ordered depending on many of its properties (e.g. alphanumeric sort of the bundle hashes);
