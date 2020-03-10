@@ -101,14 +101,14 @@ the bundles when we DFS-ed
 ```
 // ledger is the global ledger state
 // newMilestone is a bundle containing the new milestone transactions
-UpdateLedgerState(ledger, newMilestone) {
+UpdateLedgerState(ledger, new_milestone) {
 
     let seen_bundles = an empty stack
     let post_order_seen_bundles = an empty stack
 
-    seen_bundles.push(newMilestone)
+    seen_bundles.push(new_milestone)
     post_order_seen_bundles.push(newMilestone)
-    mark newMilestone as visited
+    mark new_milestone as visited
 
     while (seen_bundles is not empty) {
         let curr_bundle = seen_bundles.pop()
