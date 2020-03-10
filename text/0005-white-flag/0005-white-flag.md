@@ -100,7 +100,7 @@ the bundles when we DFS-ed
 
 ```
 // ledger is the global ledger state
-// newMilestone is a bundle containing the new milestone transactions
+// new_milestone is a bundle containing the new milestone transactions
 UpdateLedgerState(ledger, new_milestone) {
 
     let seen_bundles = an empty stack
@@ -121,7 +121,7 @@ UpdateLedgerState(ledger, new_milestone) {
         }
 
         branch = the next bundle pointed by the branch of any transaction in curr_bundle
-        if (branch is not visited and not confirmed by any miilestone previous to newMilestone) {
+        if (branch is not visited and not confirmed by any milestone previous to newMilestone) {
             seen_bundles.push(branch)
             post_order_seen_bundles.push(branch)
             mark branch as visited
