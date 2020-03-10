@@ -48,7 +48,7 @@ conflict.
 ## Deterministically ordering the Tangle
 
 When a new milestone is broadcasted to the network, nodes will need to order the set of bundles it confirms that are
-not already confirmed by any other milestone.
+was not previously confirmed by any other milestone.
 
 A subset of the Tangle can be ordered depending on many of its properties (e.g. alphanumeric sort of the bundle hashes);
 however, to compute the ledger state, a graph traversal has to be done so we can use it to order the bundles in a
@@ -62,7 +62,7 @@ is considered, the stopping condition of the DFS is reaching bundles that are al
 ![][Tangle]
 
 In this example, the topological ordering of the set of bundles confirmed by milestone `V` (purple set) is then
-`{D, G, J, L, M, R, I, K, N, O, S, V}`.
+`{D, G, J, M, L, I, K, O, N, S, R, V}`.
 
 ## Applying first bundle(s) that does not violate the ledger state
 
@@ -77,7 +77,7 @@ confirmed by a previous milestone would also obviously be ignored.
 ![][Tangle-conflict]
 
 In this example, bundles `G` and `O` both confirmed by milestone `V` are conflicting. Since in the topologically ordered
-set `{D, G, J, L, M, R, I, K, N, O, S, V}`, `G` appears before `O`, `G` is applied to the ledger state and `O` is
+set `{D, G, J, M, L, I, K, O, N, S, R, V}`, `G` appears before `O`, `G` is applied to the ledger state and `O` is
 ignored.
 
 ## Pseudo-code
@@ -88,6 +88,15 @@ a new milestone confirming many new bundles.
 Even though the tangle is a graph made of transactions, for the sake of this pseudo-code it is considered as a graph of
 bundles. For this reason, when we talk about the `trunk` or the `branch` of a bundle, we are actually referring to the
 `trunk` and `branch` of the last transaction of the bundle.
+
+There are multiple topological orders for each DAG, and in order to avoid conflicting
+ledger states it is requisite that all noes will apply bundles in the exact same order
+
+To avoid ambiguities we define the order which will be followed,
+upon the arrival of a new milestone, we will span the cone of transactions
+in a DFS manner, we will visit bundles from root to trunk and then to branch,
+we will then apply the bundles in an order reversed from the order in which we visited 
+the bundles when we DFS-ed
 
 ```
 // ledger is the global ledger state
@@ -112,7 +121,7 @@ UpdateLedgerState(ledger, newMilestone) {
         }
 
         branch = the next bundle pointed by the branch of any transaction in curr_bundle
-        if (branch is not visited and not confirmed by any milestone previous to newMilestone) {
+        if (branch is not visited and not confirmed by any miilestone previous to newMilestone) {
             seen_bundles.push(branch)
             post_order_seen_bundles.push(branch)
             mark branch as visited
